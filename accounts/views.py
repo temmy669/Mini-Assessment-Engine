@@ -86,22 +86,22 @@ class RegisterView(generics.CreateAPIView):
             status=status.HTTP_201_CREATED
         )
         
-# @extend_schema(
-#     tags=["Authentication"],
-#     summary="User login",
-#     description="Authenticate user and return an auth token."
-# )
-# class LoginView(ObtainAuthToken):
-#     def post(self, request, *args, **kwargs):
-#         response = super().post(request, *args, **kwargs)
-#         if response is None or not response.data:
-#             return Response(
-#                 {'error': 'Authentication failed'},
-#                 status=status.HTTP_400_BAD_REQUEST
-#             )
-#         return Response({
-#             "token": response.data["token"]
-#         })
+@extend_schema(
+    tags=["Authentication"],
+    summary="User login",
+    description="Authenticate user and return an auth token."
+)
+class LoginView(ObtainAuthToken):
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        if response is None or not response.data:
+            return Response(
+                {'error': 'Authentication failed'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        return Response({
+            "token": response.data["token"]
+        })
 
 @extend_schema(
     tags=["Authentication"],
