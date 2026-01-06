@@ -1,0 +1,1369 @@
+openapi: 3.0.3
+info:
+  title: Acad AI Assessment Engine API
+  version: 1.0.0
+  description: |2
+
+    Mini Assessment Engine API Documentation
+
+    A comprehensive assessment platform for academic institutions.
+
+    Authentication:
+    - Token-based authentication
+    - Header format: Authorization: Token <your-token>
+
+    Features:
+    - Secure student submissions
+    - Automated grading
+    - Role-based access
+    - Performance analytics
+  contact:
+    email: support@acadai.com
+  license:
+    name: MIT License
+paths:
+  /api/auth/login/:
+    post:
+      operationId: api_auth_login_create
+      description: Authenticate user and return an auth token.
+      summary: User login
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AuthToken'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AuthToken'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthToken'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthToken'
+          description: ''
+  /api/auth/logout/:
+    post:
+      operationId: api_auth_logout_create
+      description: Logs out the authenticated user by deleting their authentication
+        token.
+      summary: Logout user
+      tags:
+      - Authentication
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Successfully logged out
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  detail: Authentication credentials were not provided.
+          description: ''
+  /api/auth/profile/:
+    get:
+      operationId: api_auth_profile_retrieve
+      description: Allows an authenticated user to retrieve or update their own profile
+        information.
+      summary: Retrieve user profile
+      tags:
+      - Users
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    put:
+      operationId: api_auth_profile_update
+      description: Allows an authenticated user to retrieve or update their own profile
+        information.
+      summary: Update user profile
+      tags:
+      - Users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/User'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    patch:
+      operationId: api_auth_profile_partial_update
+      description: Allows an authenticated user to retrieve or update their own profile
+        information.
+      summary: Partially update user profile
+      tags:
+      - Users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUser'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUser'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUser'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/auth/register/:
+    post:
+      operationId: api_auth_register_create
+      description: Creates a new user account and returns an authentication token.
+        Users can register as students or instructors.
+      summary: Register a new user
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/User'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - tokenAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  error: Username already exists
+          description: ''
+  /api/courses/:
+    get:
+      operationId: api_courses_list
+      description: |-
+        ViewSet for viewing courses.
+        Students can view all published courses.
+      parameters:
+      - in: query
+        name: code
+        schema:
+          type: string
+      - in: query
+        name: instructor
+        schema:
+          type: integer
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - Courses
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCourseList'
+          description: ''
+  /api/courses/{id}/:
+    get:
+      operationId: api_courses_retrieve
+      description: |-
+        ViewSet for viewing courses.
+        Students can view all published courses.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this course.
+        required: true
+      tags:
+      - Courses
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+          description: ''
+  /api/dashboard/:
+    get:
+      operationId: api_dashboard_retrieve
+      description: Returns statistics, recent submissions, and upcoming exams.
+      summary: Student dashboard overview
+      tags:
+      - Student Dashboard
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/exams/:
+    get:
+      operationId: api_exams_list
+      description: |-
+        ViewSet for viewing exams.
+        Students can only view published exams.
+        Instructors can view all exams.
+      parameters:
+      - in: query
+        name: course
+        schema:
+          type: integer
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - ARCHIVED
+          - DRAFT
+          - PUBLISHED
+        description: |-
+          * `DRAFT` - Draft
+          * `PUBLISHED` - Published
+          * `ARCHIVED` - Archived
+      tags:
+      - Exams
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedExamListList'
+          description: ''
+  /api/exams/{exam_id}/submit/:
+    post:
+      operationId: api_exams_submit_create
+      description: Submit answers for an active exam and receive automated grading.
+      summary: Submit an exam
+      parameters:
+      - in: path
+        name: exam_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Exam Submissions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmissionCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SubmissionCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SubmissionCreate'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmissionCreate'
+          description: ''
+  /api/exams/{id}/:
+    get:
+      operationId: api_exams_retrieve
+      description: |-
+        ViewSet for viewing exams.
+        Students can only view published exams.
+        Instructors can view all exams.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this exam.
+        required: true
+      tags:
+      - Exams
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamDetail'
+          description: ''
+  /api/exams/{id}/my_submissions/:
+    get:
+      operationId: api_exams_my_submissions_retrieve
+      description: |-
+        Get all submissions for current student for this exam.
+        Optimized with select_related and prefetch_related.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this exam.
+        required: true
+      tags:
+      - Exams
+      - Submissions
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamDetail'
+          description: ''
+  /api/exams/{id}/statistics/:
+    get:
+      operationId: api_exams_statistics_retrieve
+      description: Get statistics for an exam (instructors only).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this exam.
+        required: true
+      tags:
+      - Exams
+      - Analytics
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamDetail'
+          description: ''
+  /api/schema/:
+    get:
+      operationId: api_schema_retrieve
+      description: |-
+        OpenApi3 schema for this API. Format can be selected via content negotiation.
+
+        - YAML: application/vnd.oai.openapi
+        - JSON: application/vnd.oai.openapi+json
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - json
+          - yaml
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - af
+          - ar
+          - ar-dz
+          - ast
+          - az
+          - be
+          - bg
+          - bn
+          - br
+          - bs
+          - ca
+          - ckb
+          - cs
+          - cy
+          - da
+          - de
+          - dsb
+          - el
+          - en
+          - en-au
+          - en-gb
+          - eo
+          - es
+          - es-ar
+          - es-co
+          - es-mx
+          - es-ni
+          - es-ve
+          - et
+          - eu
+          - fa
+          - fi
+          - fr
+          - fy
+          - ga
+          - gd
+          - gl
+          - he
+          - hi
+          - hr
+          - hsb
+          - ht
+          - hu
+          - hy
+          - ia
+          - id
+          - ig
+          - io
+          - is
+          - it
+          - ja
+          - ka
+          - kab
+          - kk
+          - km
+          - kn
+          - ko
+          - ky
+          - lb
+          - lt
+          - lv
+          - mk
+          - ml
+          - mn
+          - mr
+          - ms
+          - my
+          - nb
+          - ne
+          - nl
+          - nn
+          - os
+          - pa
+          - pl
+          - pt
+          - pt-br
+          - ro
+          - ru
+          - sk
+          - sl
+          - sq
+          - sr
+          - sr-latn
+          - sv
+          - sw
+          - ta
+          - te
+          - tg
+          - th
+          - tk
+          - tr
+          - tt
+          - udm
+          - ug
+          - uk
+          - ur
+          - uz
+          - vi
+          - zh-hans
+          - zh-hant
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - tokenAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.oai.openapi:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/yaml:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/vnd.oai.openapi+json:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/submissions/:
+    get:
+      operationId: api_submissions_list
+      description: |-
+        ViewSet for viewing submissions.
+        Students can only view their own submissions.
+        Instructors can view all submissions.
+
+        Optimized for efficient result retrieval using:
+        - select_related for foreign keys
+        - prefetch_related for reverse relations
+        - Database indexes on commonly queried fields
+      parameters:
+      - in: query
+        name: attempt_number
+        schema:
+          type: integer
+      - in: query
+        name: exam
+        schema:
+          type: integer
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - GRADED
+          - GRADING
+          - IN_PROGRESS
+          - SUBMITTED
+        description: |-
+          * `IN_PROGRESS` - In Progress
+          * `SUBMITTED` - Submitted
+          * `GRADING` - Grading
+          * `GRADED` - Graded
+      tags:
+      - Exams
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSubmissionList'
+          description: ''
+  /api/submissions/{id}/:
+    get:
+      operationId: api_submissions_retrieve
+      description: |-
+        ViewSet for viewing submissions.
+        Students can only view their own submissions.
+        Instructors can view all submissions.
+
+        Optimized for efficient result retrieval using:
+        - select_related for foreign keys
+        - prefetch_related for reverse relations
+        - Database indexes on commonly queried fields
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this submission.
+        required: true
+      tags:
+      - Exams
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmissionDetail'
+          description: ''
+  /api/submissions/my_results/:
+    get:
+      operationId: api_submissions_my_results_retrieve
+      description: |-
+        Optimized endpoint for students to retrieve their results.
+        Uses database indexes and minimal queries for fast retrieval.
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmissionDetail'
+          description: ''
+components:
+  schemas:
+    Answer:
+      type: object
+      description: Serializer for individual answers.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        question:
+          type: integer
+        question_text:
+          type: string
+          readOnly: true
+        question_marks:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          readOnly: true
+        answer_text:
+          description: Student's answer - structure depends on question type
+        marks_awarded:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          readOnly: true
+          nullable: true
+        is_correct:
+          type: boolean
+          readOnly: true
+          nullable: true
+        feedback:
+          type: string
+          readOnly: true
+        graded_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+      required:
+      - answer_text
+      - feedback
+      - graded_at
+      - id
+      - is_correct
+      - marks_awarded
+      - question
+      - question_marks
+      - question_text
+    AuthToken:
+      type: object
+      properties:
+        username:
+          type: string
+          writeOnly: true
+        password:
+          type: string
+          writeOnly: true
+        token:
+          type: string
+          readOnly: true
+      required:
+      - password
+      - token
+      - username
+    Course:
+      type: object
+      description: Serializer for Course model.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        code:
+          type: string
+          maxLength: 20
+        name:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+        instructor:
+          type: integer
+        instructor_name:
+          type: string
+          readOnly: true
+        exam_count:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - code
+      - created_at
+      - exam_count
+      - id
+      - instructor
+      - instructor_name
+      - name
+      - updated_at
+    ExamDetail:
+      type: object
+      description: Detailed exam serializer with questions.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        course:
+          type: integer
+        course_name:
+          type: string
+          readOnly: true
+        description:
+          type: string
+        duration_minutes:
+          type: integer
+          maximum: 2147483647
+          minimum: 1
+          description: Duration of exam in minutes
+        start_time:
+          type: string
+          format: date-time
+          description: When the exam becomes available
+        end_time:
+          type: string
+          format: date-time
+          description: When the exam closes
+        status:
+          $ref: '#/components/schemas/Status3bdEnum'
+        is_active:
+          type: string
+          readOnly: true
+        passing_score:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          description: Minimum score to pass (percentage)
+        max_attempts:
+          type: integer
+          maximum: 2147483647
+          minimum: 1
+          description: Maximum number of submission attempts allowed
+        total_marks:
+          type: string
+          readOnly: true
+        questions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Question'
+          readOnly: true
+        metadata:
+          description: Additional metadata like instructions, resources, etc.
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - course
+      - course_name
+      - created_at
+      - duration_minutes
+      - end_time
+      - id
+      - is_active
+      - questions
+      - start_time
+      - title
+      - total_marks
+    ExamList:
+      type: object
+      description: Lightweight serializer for exam listings.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        course:
+          type: integer
+        course_name:
+          type: string
+          readOnly: true
+        course_code:
+          type: string
+          readOnly: true
+        duration_minutes:
+          type: integer
+          maximum: 2147483647
+          minimum: 1
+          description: Duration of exam in minutes
+        start_time:
+          type: string
+          format: date-time
+          description: When the exam becomes available
+        end_time:
+          type: string
+          format: date-time
+          description: When the exam closes
+        status:
+          $ref: '#/components/schemas/Status3bdEnum'
+        is_active:
+          type: string
+          readOnly: true
+        question_count:
+          type: string
+          readOnly: true
+        total_marks:
+          type: string
+          readOnly: true
+        passing_score:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          description: Minimum score to pass (percentage)
+        max_attempts:
+          type: integer
+          maximum: 2147483647
+          minimum: 1
+          description: Maximum number of submission attempts allowed
+      required:
+      - course
+      - course_code
+      - course_name
+      - duration_minutes
+      - end_time
+      - id
+      - is_active
+      - question_count
+      - start_time
+      - title
+      - total_marks
+    PaginatedCourseList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Course'
+    PaginatedExamListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExamList'
+    PaginatedSubmissionList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Submission'
+    PatchedUser:
+      type: object
+      description: Serializer for User model.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+        student_id:
+          type: string
+          nullable: true
+          description: Unique student identification number
+          maxLength: 20
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+    Question:
+      type: object
+      description: Serializer for Question model.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        question_type:
+          $ref: '#/components/schemas/QuestionTypeEnum'
+        question_text:
+          type: string
+          description: The question text
+        order:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          description: Display order in the exam
+        marks:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          description: Marks allocated to this question
+        options:
+          nullable: true
+          description: Options for multiple choice questions
+        metadata:
+          description: Additional metadata like hints, explanation, etc.
+      required:
+      - id
+      - question_text
+      - question_type
+    QuestionTypeEnum:
+      enum:
+      - MCQ
+      - SHORT
+      - ESSAY
+      - TF
+      type: string
+      description: |-
+        * `MCQ` - Multiple Choice
+        * `SHORT` - Short Answer
+        * `ESSAY` - Essay
+        * `TF` - True/False
+    RoleEnum:
+      enum:
+      - STUDENT
+      - INSTRUCTOR
+      - ADMIN
+      type: string
+      description: |-
+        * `STUDENT` - Student
+        * `INSTRUCTOR` - Instructor
+        * `ADMIN` - Admin
+    Status3bdEnum:
+      enum:
+      - DRAFT
+      - PUBLISHED
+      - ARCHIVED
+      type: string
+      description: |-
+        * `DRAFT` - Draft
+        * `PUBLISHED` - Published
+        * `ARCHIVED` - Archived
+    StatusFbdEnum:
+      enum:
+      - IN_PROGRESS
+      - SUBMITTED
+      - GRADING
+      - GRADED
+      type: string
+      description: |-
+        * `IN_PROGRESS` - In Progress
+        * `SUBMITTED` - Submitted
+        * `GRADING` - Grading
+        * `GRADED` - Graded
+    Submission:
+      type: object
+      description: Serializer for submission listings.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        exam:
+          type: integer
+        exam_title:
+          type: string
+          readOnly: true
+        student:
+          type: integer
+        student_name:
+          type: string
+          readOnly: true
+        attempt_number:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          default: 1
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusFbdEnum'
+          readOnly: true
+        started_at:
+          type: string
+          format: date-time
+          readOnly: true
+        submitted_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        graded_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        score:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          readOnly: true
+          nullable: true
+          description: Final score as percentage
+        marks_obtained:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,2})?$
+          readOnly: true
+          nullable: true
+          description: Total marks obtained
+        total_marks:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,2})?$
+          nullable: true
+          description: Total marks for the exam
+        is_passed:
+          type: string
+          readOnly: true
+        time_taken:
+          type: string
+          readOnly: true
+      required:
+      - exam
+      - exam_title
+      - graded_at
+      - id
+      - is_passed
+      - marks_obtained
+      - score
+      - started_at
+      - status
+      - student
+      - student_name
+      - submitted_at
+      - time_taken
+    SubmissionCreate:
+      type: object
+      description: |-
+        Serializer for creating/submitting exam answers.
+        Validates that all questions are answered and exam is active.
+      properties:
+        answers:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          description: List of answers with question_id and answer_text
+          minItems: 1
+      required:
+      - answers
+    SubmissionDetail:
+      type: object
+      description: Detailed submission with answers and feedback.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        exam:
+          type: integer
+        exam_title:
+          type: string
+          readOnly: true
+        student:
+          type: integer
+        student_name:
+          type: string
+          readOnly: true
+        attempt_number:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          default: 1
+        status:
+          $ref: '#/components/schemas/StatusFbdEnum'
+        started_at:
+          type: string
+          format: date-time
+          readOnly: true
+        submitted_at:
+          type: string
+          format: date-time
+          nullable: true
+        graded_at:
+          type: string
+          format: date-time
+          nullable: true
+        score:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          nullable: true
+          description: Final score as percentage
+        marks_obtained:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,2})?$
+          nullable: true
+          description: Total marks obtained
+        total_marks:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,2})?$
+          nullable: true
+          description: Total marks for the exam
+        is_passed:
+          type: string
+          readOnly: true
+        time_taken:
+          type: string
+          readOnly: true
+        feedback:
+          description: Grading feedback and comments
+        answers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Answer'
+          readOnly: true
+      required:
+      - answers
+      - exam
+      - exam_title
+      - id
+      - is_passed
+      - started_at
+      - student
+      - student_name
+      - time_taken
+    User:
+      type: object
+      description: Serializer for User model.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+        student_id:
+          type: string
+          nullable: true
+          description: Unique student identification number
+          maxLength: 20
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - username
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
+    tokenAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Token-based authentication with required prefix "Token"
+tags:
+- name: Authentication
+  description: Login, logout, and registration endpoints
+- name: Users
+  description: User profile and account management
+- name: Exams
+  description: Exam creation, participation, and grading
