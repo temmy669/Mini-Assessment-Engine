@@ -465,5 +465,3 @@ For issues or questions:
 MIT License - Feel free to use for academic purposes.
 
 ---
-
-**Built for Acad AI Backend Assessment**
